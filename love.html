@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>真心话大冒险</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .card {
+            background: white;
+            width: 85%;
+            max-width: 350px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+            min-height: 60px; /* 防止文字变化导致高度跳动 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-area {
+            font-size: 80px;
+            margin-bottom: 30px;
+            height: 100px;
+            display: none; /* 默认隐藏，特定状态显示 */
+            animation: bounce 1s infinite alternate;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            width: 100%;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background-color: #07c160; /* 微信绿 */
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #fa5151; /* 红色 */
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #ededed;
+            color: #333;
+        }
+
+        /* 心碎动画 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        /* 爱心跳动 */
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .shake-text {
+            animation: shake 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="mainCard">
+        <div class="icon-area" id="iconArea"></div>
+
+        <h2 id="questionText">你爱不爱我？</h2>
+
+        <div class="btn-container" id="btnContainer">
+            <button class="btn-primary" onclick="clickLove()">爱</button>
+            <button class="btn-secondary" onclick="clickNoLove()">不爱</button>
+        </div>
+    </div>
+
+    <script>
+        // 计数器
+        let realLoveCount = 0; // "真的爱你" 点击次数
+        let veryLoveCount = 0; // "非常爱你" 点击次数
+        let step = 0; // 0:初始, 1:循环质问
+
+        const questionText = document.getElementById('questionText');
+        const btnContainer = document.getElementById('btnContainer');
+        const iconArea = document.getElementById('iconArea');
+
+        // 点击“爱”
+        function clickLove() {
+            step = 1;
+            updateUIForLoop();
+        }
+
+        // 点击“不爱”
+        function clickNoLove() {
+            questionText.innerText = "我就知道你不爱我，渣男！";
+            questionText.style.color = "#fa5151";
+
+            iconArea.style.display = "block";
+            iconArea.innerText = "💔"; // 心碎图标
+            iconArea.style.animation = "shake 0.5s"; // 不跳动，改为抖动
+
+            btnContainer.innerHTML = ""; // 清空按钮
+        }
+
+        // 进入循环质问模式
+        function updateUIForLoop() {
+            questionText.innerText = "不信";
+            // 添加抖动效果以示重置
+            questionText.classList.remove('shake-text');
+            void questionText.offsetWidth; // 触发重绘
+            questionText.classList.add('shake-text');
+
+            iconArea.style.display = "none";
+
+            btnContainer.innerHTML = `
+                <button class="btn-primary" onclick="handleLoop('real')">真的爱你</button>
+                <button class="btn-danger" onclick="handleLoop('very')">非常爱你</button>
+            `;
+        }
+
+        // 处理循环里的点击逻辑
+        function handleLoop(type) {
+            // 逻辑：必须先点3次"真的爱你"，再点3次"非常爱你"
+
+            if (type === 'real') {
+                realLoveCount++;
+                // 如果已经在点"非常爱你"的阶段又点了"真的爱你"，是否重置？
+                // 这里为了体验流畅，不重置，只单纯增加计数，但必须满足顺序
+            } else if (type === 'very') {
+                if (realLoveCount >= 3) {
+                    veryLoveCount++;
+                } else {
+                    // 如果没点够3次"真的"就点"非常"，重置"非常"的计数，或者什么都不做
+                    veryLoveCount = 0;
+                }
+            }
+
+            // 检查通关条件
+            if (realLoveCount >= 3 && veryLoveCount >= 3) {
+                showSuccess();
+            } else {
+                // 没通关，继续显示不信（带一点文字变化或动画反馈）
+                updateUIForLoop();
+            }
+        }
+
+        // 成功通关
+        function showSuccess() {
+            questionText.innerText = "好吧，那我相信了";
+            questionText.style.color = "#07c160";
+
+            iconArea.style.display = "block";
+            iconArea.innerText = "❤️";
+            iconArea.style.animation = "bounce 1s infinite alternate";
+
+            btnContainer.innerHTML = ""; // 清空按钮，或者留一个“爱你”按钮
+        }
+    </script>
+</body>
+</html>
